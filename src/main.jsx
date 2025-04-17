@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { supabase } from './lib/supabaseClient';
+import { supabase } from '@/lib/supabaseClient';
 
 import LoginPage from './pages/Auth/Login.jsx'
 import RegisterPage from './pages/Auth/RegisterPage.jsx'
