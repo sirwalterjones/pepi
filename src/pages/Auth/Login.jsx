@@ -33,7 +33,7 @@ export default function LoginPage() {
       } else if (err.message.includes('Email not confirmed')) {
          setError('Please confirm your email address first.');
       } else {
-        setError(err.message || 'An unexpected error occurred during login.');
+        setError('An unexpected error occurred. Please try again.'); // Generic error
       }
     } finally {
       setLoading(false);
@@ -41,16 +41,21 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-slate-100 p-4">
-       <Card className="w-full max-w-md shadow-lg">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">PEPI Tracker</CardTitle>
-          <CardDescription>Sign in to access your account</CardDescription>
+    // Use font-sans defined in tailwind.config.js (Inter)
+    // Slightly softer background gradient
+    <div className="font-sans flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 via-stone-50 to-slate-100 p-4">
+       {/* Increase card padding, add subtle border */}
+       <Card className="w-full max-w-md shadow-lg border border-border/40 rounded-xl overflow-hidden">
+        <CardHeader className="text-center p-8 bg-card">
+            {/* Placeholder for Logo */}
+            {/* <img src="/logo.svg" alt="PEPI Tracker Logo" className="w-16 h-16 mx-auto mb-4" /> */}
+          <CardTitle className="text-2xl font-semibold tracking-tight">PEPI Tracker</CardTitle>
+          <CardDescription className="text-muted-foreground">Sign in to access your account</CardDescription>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email address</Label>
+        <CardContent className="p-8">
+          <form onSubmit={handleLogin} className="space-y-5"> { /* Slightly more space */}
+            <div className="space-y-1.5"> { /* Tighter spacing for label/input */}
+              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -62,7 +67,7 @@ export default function LoginPage() {
                 disabled={loading}
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
@@ -77,22 +82,22 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              // Optional: Use Shadcn Alert component if added
-              <div className="bg-destructive/10 border border-destructive/20 text-sm text-destructive rounded-md p-3" role="alert">
-                  {error}
+              <div className="bg-destructive/10 border border-destructive/20 text-sm text-destructive rounded-md p-3 flex items-center gap-2" role="alert">
+                  {/* Optional: Add an icon here */}
+                  <span>{error}</span>
               </div>
             )}
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full text-base py-2.5" disabled={loading}> { /* Slightly larger button */}
                {loading && <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />}
               {loading ? 'Signing in...' : 'Sign in'}
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="flex justify-center">
+        <CardFooter className="bg-muted/50 p-6 border-t flex justify-center">
           <p className="text-sm text-muted-foreground">
             Need an account?{' '}
-            <Button variant="link" className="p-0 h-auto" asChild>
+            <Button variant="link" className="p-0 h-auto font-medium" asChild>
                  <Link to="/register">
                      Register here
                 </Link>
