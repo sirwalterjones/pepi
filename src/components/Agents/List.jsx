@@ -1,56 +1,111 @@
 import React from 'react';
+import { MoreHorizontal } from "lucide-react";
 
-// TODO: Fetch actual agent data from Supabase
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card"; // Use Card for wrapper
+
+// TODO: Fetch actual agent data from Supabase (using profiles table)
 const mockAgents = [
-  { id: 1, name: 'Agent Smith', badge_number: '12345', created_at: '2025-01-15' },
-  { id: 2, name: 'Agent Jones', badge_number: '67890', created_at: '2025-01-16' },
-  { id: 3, name: 'Agent Brown', badge_number: '11223', created_at: '2025-02-01' },
+  { id: 'uuid-1', full_name: 'Agent Smith', badge_number: '12345', created_at: '2025-01-15' },
+  { id: 'uuid-2', full_name: 'Agent Jones', badge_number: '67890', created_at: '2025-01-16' },
+  { id: 'uuid-3', full_name: 'Agent Brown', badge_number: '11223', created_at: '2025-02-01' },
 ];
 
 export default function AgentsList() {
-  // TODO: Implement state for managing agents (add, edit, delete)
-  // TODO: Implement form/modal for adding/editing agents
-  // TODO: Implement delete confirmation
+  // TODO: Implement state for managing agents (add, edit, delete modals/forms)
+  // TODO: Implement actual add/edit/delete functionality
+
+  const handleAddAgent = () => console.log("Open Add Agent Modal");
+  const handleEditAgent = (agentId) => console.log("Open Edit Agent Modal:", agentId);
+  const handleDeleteAgent = (agentId) => console.log("Confirm Delete Agent:", agentId);
 
   return (
-    <div className="bg-white shadow-md rounded-lg overflow-hidden">
-      <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-          <h3 className="text-lg font-semibold text-gray-700">Manage Agents</h3>
-          <button className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm">
-            + Add Agent
-          </button>
-      </div>
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-            <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Badge Number</th>
-            <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Added</th>
-            <th scope="col" className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {mockAgents.map((agent) => (
-            <tr key={agent.id} className="hover:bg-gray-50">
-              <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{agent.name}</td>
-              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{agent.badge_number}</td>
-              <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{agent.created_at}</td>
-              <td className="px-4 py-3 whitespace-nowrap text-center text-sm font-medium">
-                {/* TODO: Add actual action buttons/icons */}
-                <button className="text-indigo-600 hover:text-indigo-900 mr-2">Edit</button>
-                <button className="text-red-600 hover:text-red-900">Delete</button>
-              </td>
-            </tr>
-          ))}
-           {mockAgents.length === 0 && (
-             <tr>
-                <td colSpan="4" className="text-center py-4 text-gray-500">
-                    No agents found.
-                </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <div className="space-y-1">
+             <CardTitle>Agent Management</CardTitle>
+             <CardDescription>
+                Add, edit, or remove agents.
+             </CardDescription>
+        </div>
+         <Button size="sm" onClick={handleAddAgent}>+ Add Agent</Button>
+      </CardHeader>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Badge Number</TableHead>
+              <TableHead>Date Added</TableHead>
+              <TableHead className="w-[50px] text-center">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {mockAgents.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
+                  No agents found.
+                </TableCell>
+              </TableRow>
+            ) : (
+              mockAgents.map((agent) => (
+                <TableRow key={agent.id}>
+                  <TableCell className="font-medium">{agent.full_name}</TableCell>
+                  <TableCell className="text-muted-foreground">{agent.badge_number}</TableCell>
+                  <TableCell className="text-muted-foreground">{new Date(agent.created_at).toLocaleDateString()}</TableCell>
+                  <TableCell className="text-center">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <span className="sr-only">Open menu</span>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem onClick={() => handleEditAgent(agent.id)}>Edit</DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => handleDeleteAgent(agent.id)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </CardContent>
+       {/* Optional Footer for pagination? */}
+        {/* <CardFooter>
+            <div className="text-xs text-muted-foreground">
+                Showing <strong>1-10</strong> of <strong>32</strong> products
+            </div>
+        </CardFooter> */}
+    </Card>
   );
 } 

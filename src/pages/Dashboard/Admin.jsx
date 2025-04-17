@@ -39,16 +39,29 @@ const NavBar = ({ setCurrentView }) => { // Accept setCurrentView prop
   );
 };
 
+// Sidebar using shadcn theme variables
 const AdminSidebar = () => (
-  <aside className="w-64 bg-card p-4 border-r h-full flex-shrink-0">
-    <h3 className="text-lg font-semibold mb-4 text-card-foreground">Quick Stats</h3>
-    <div className="space-y-2 text-sm text-muted-foreground">
+  // Use bg-muted/10 or similar for slight contrast if needed
+  <aside className="w-64 bg-card p-6 border-r h-full flex-shrink-0">
+    <h3 className="text-lg font-semibold mb-4">Quick Stats</h3>
+    <div className="space-y-3 text-sm">
       {/* TODO: Fetch and display actual data */}
-      <p>Total In: <span className="font-medium text-foreground">$0.00</span></p>
-      <p>Total Out: <span className="font-medium text-foreground">$0.00</span></p>
-      <p>Current Balance: <span className="font-medium text-foreground">$0.00</span></p>
+      <div>
+        <p className="text-muted-foreground">Total In</p>
+        <p className="font-medium text-xl text-primary">$0.00</p>
+      </div>
+       <div>
+        <p className="text-muted-foreground">Total Out</p>
+        <p className="font-medium text-xl text-destructive">$0.00</p>
+      </div>
+       <div>
+        <p className="text-muted-foreground">Current Balance</p>
+        <p className="font-medium text-xl">$0.00</p>
+      </div>
     </div>
-    {/* Add more sidebar content as needed */}
+    {/* Add more sidebar content as needed - e.g., Links/Buttons */}
+    {/* <Separator className="my-4" />
+    <Button variant="outline" size="sm" className="w-full">View Full Report</Button> */}
   </aside>
 );
 
