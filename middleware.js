@@ -2,28 +2,46 @@ import { NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 
 export async function middleware(req) {
-  // We need to create a response and hand it to the supabase client to be able
-  // to read the cookies.
+  console.log('[Middleware] Running for path:', req.nextUrl.pathname);
+  
   const res = NextResponse.next()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        get(name) {
-          return req.cookies.get(name)?.value
+  let supabase; // Define outside try block
+  try {
+    supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      {
+        cookies: {
+          get(name) {
+            return req.cookies.get(name)?.value
+          },
+          set(name, value, options) {
+            // If the cookie is set, log it
+            console.log('[Middleware] Setting cookie:', name);
+            res.cookies.set({ name, value, ...options })
+          },
+          remove(name, options) {
+            console.log('[Middleware] Removing cookie:', name);
+            res.cookies.delete({ name, ...options })
+          },
         },
-        set(name, value, options) {
-          res.cookies.set({ name, value, ...options })
-        },
-        remove(name, options) {
-          res.cookies.delete({ name, ...options })
-        },
-      },
-    }
-  )
+      }
+    )
+  } catch (error) {
+    console.error('[Middleware] Error creating Supabase client:', error);
+    return res; // Allow request to pass if client creation fails
+  }
 
-  const { data: { session } } = await supabase.auth.getSession()
+  let session = null;
+  try {
+    const { data } = await supabase.auth.getSession()
+    session = data.session; // Assign session from data
+    console.log('[Middleware] Session data:', session ? `User ID: ${session.user.id}` : 'null');
+  } catch (error) {
+     console.error('[Middleware] Error getting session:', error);
+     // Don't redirect on error, just log and let pass
+     return res;
+  }
 
   const { pathname } = req.nextUrl
 
@@ -37,16 +55,18 @@ export async function middleware(req) {
 
   // Redirect logged-out users from protected routes
   if (!session && isProtectedRoute) {
+    console.log('[Middleware] No session, redirecting from protected route to /login');
     return NextResponse.redirect(new URL('/login', req.url))
   }
 
   // Redirect logged-in users from auth routes to a generic dashboard for now
   if (session && isAuthRoute) {
+    console.log('[Middleware] Session found, redirecting from auth route to /dashboard');
     // TODO: Implement role-based redirect later (/dashboard/admin or /dashboard/agent)
     return NextResponse.redirect(new URL('/dashboard', req.url))
   }
 
-  // Allow the request to proceed
+  console.log('[Middleware] Allowing request to proceed.');
   return res
 }
 
