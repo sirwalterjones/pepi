@@ -3,8 +3,11 @@ import { fontFamily } from "tailwindcss/defaultTheme"
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
-    "./index.html", // Include the root index.html
-    "./src/**/*.{js,ts,jsx,tsx}", // Include all relevant files in src
+    // Scan files in the app directory
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
+    // Scan files in the src/components directory
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    // Add any other paths that contain Tailwind classes
   ],
   theme: {
     extend: {
@@ -16,7 +19,7 @@ export default {
     },
   },
   plugins: [
-    // Add Tailwind plugins here if needed
+    // Add any plugins if needed
     // require("@tailwindcss/forms"),
   ],
 } 
