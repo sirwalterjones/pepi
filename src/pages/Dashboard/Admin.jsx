@@ -1,11 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom'; // Import for navigation
-import { supabase } from '../../lib/supabaseClient'; // Import Supabase client
-import TransactionsTable from '../../components/Transactions/Table'; // Adjust path as needed
-import AgentsList from '../../components/Agents/List'; // Adjust path as needed
+import { supabase } from '@/lib/supabaseClient'; // Use alias
+import TransactionsTable from '@/components/Transactions/Table'; // Use alias
+import AgentsList from '@/components/Agents/List'; // Use alias
+import { Button } from "@/components/ui/button"; // Import Button
 
-// NavBar component with Logout
-const NavBar = () => {
+// NavBar component with Logout using shadcn Button
+const NavBar = ({ setCurrentView }) => { // Accept setCurrentView prop
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -21,34 +22,31 @@ const NavBar = () => {
   };
 
   return (
-    <nav className="bg-white shadow-md p-4 flex justify-between items-center">
-      <span className="text-xl font-semibold text-gray-700">PEPI Tracker (Admin)</span>
-      <div className="flex items-center space-x-3">
+    <nav className="bg-background border-b p-4 flex justify-between items-center">
+      <span className="text-xl font-semibold">PEPI Tracker (Admin)</span>
+      <div className="flex items-center space-x-2">
         {/* TODO: Implement Year Selector */}
-        <span className="text-sm text-gray-500 mr-4">Year: 2025</span>
-        {/* TODO: Add actual buttons/links and functionality for nav items */}
-        <button className="bg-blue-500 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md text-sm font-medium transition duration-150">New Transaction</button>
-        <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-md text-sm font-medium transition duration-150">Agents</button>
-        <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-md text-sm font-medium transition duration-150">Reports</button>
-        <button
-          onClick={handleLogout}
-          className="bg-red-500 hover:bg-red-700 text-white px-3 py-1.5 rounded-md text-sm font-medium transition duration-150"
-        >
+        {/* <span className="text-sm text-muted-foreground mr-4">Year: 2025</span> */}
+        {/* Use Buttons to set the current view */}
+        <Button variant="default" size="sm" onClick={() => setCurrentView('transactions')}>New Transaction</Button>
+        <Button variant="ghost" size="sm" onClick={() => setCurrentView('agents')}>Agents</Button>
+        <Button variant="ghost" size="sm" onClick={() => setCurrentView('reports')}>Reports</Button>
+        <Button variant="destructive" size="sm" onClick={handleLogout}>
           Logout
-        </button>
+        </Button>
       </div>
     </nav>
   );
 };
 
 const AdminSidebar = () => (
-  <aside className="w-64 bg-gray-50 p-4 shadow-md h-full">
-    <h3 className="text-lg font-semibold mb-4 text-gray-600">Quick Stats</h3>
-    <div className="space-y-2">
+  <aside className="w-64 bg-card p-4 border-r h-full flex-shrink-0">
+    <h3 className="text-lg font-semibold mb-4 text-card-foreground">Quick Stats</h3>
+    <div className="space-y-2 text-sm text-muted-foreground">
       {/* TODO: Fetch and display actual data */}
-      <p>Total In: <span className="font-medium">$0.00</span></p>
-      <p>Total Out: <span className="font-medium">$0.00</span></p>
-      <p>Current Balance: <span className="font-medium">$0.00</span></p>
+      <p>Total In: <span className="font-medium text-foreground">$0.00</span></p>
+      <p>Total Out: <span className="font-medium text-foreground">$0.00</span></p>
+      <p>Current Balance: <span className="font-medium text-foreground">$0.00</span></p>
     </div>
     {/* Add more sidebar content as needed */}
   </aside>
@@ -59,8 +57,8 @@ export default function AdminDashboardPage() {
   const [currentView, setCurrentView] = React.useState('transactions'); // Example state
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
-      <NavBar />
+    <div className="flex flex-col h-screen bg-background">
+      <NavBar setCurrentView={setCurrentView} /> { /* Pass setter */}
       <div className="flex flex-1 overflow-hidden">
         <AdminSidebar />
         <main className="flex-1 p-6 overflow-y-auto">
@@ -73,6 +71,7 @@ export default function AdminDashboardPage() {
           {/* Conditionally render main content based on state */}
           {currentView === 'transactions' && <TransactionsTable />}
           {currentView === 'agents' && <AgentsList />}
+          {currentView === 'reports' && <p>Reports View Placeholder</p>}
           {/* TODO: Add Reporting component */} 
           {/* {currentView === 'reports' && <ReportsComponent />} */}
         </main>

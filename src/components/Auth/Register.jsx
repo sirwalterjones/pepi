@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
-import { supabase } from '../../lib/supabaseClient'; // Import supabase client
+import { supabase } from '@/lib/supabaseClient'; // Use alias
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { ReloadIcon } from "@radix-ui/react-icons";
 
-export default function RegisterComponent() { // Renamed to avoid conflict if used as a page
+export default function RegisterComponent() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -27,33 +32,21 @@ export default function RegisterComponent() { // Renamed to avoid conflict if us
     console.log('Attempting registration with:', { email });
 
     try {
-      // Check Supabase config first (optional)
-      // if (!checkSupabaseConfig()) { 
-      //   throw new Error("Supabase not configured.");
-      // }
-
       const { data, error: signUpError } = await supabase.auth.signUp({ 
         email,
         password,
-        // options: { // Optional: Add user metadata like role upon signup
-        //   data: {
-        //     role: 'agent' // Default role, could be adjusted
-        //   }
-        // }
       });
 
       if (signUpError) throw signUpError;
 
       console.log('Registration successful:', data);
       setMessage('Registration successful! Please check your email for a confirmation link.');
-      // Clear form on success
       setEmail('');
       setPassword('');
       setConfirmPassword('');
 
     } catch (err) {
       console.error('Registration error:', err);
-       // Provide user-friendly error messages
       if (err.message.includes('User already registered')) {
          setError('This email address is already registered.');
       } else if (err.message.includes('Password should be at least 6 characters')) {
@@ -66,73 +59,75 @@ export default function RegisterComponent() { // Renamed to avoid conflict if us
     }
   };
 
-  // This is a component, likely used within a Register Page or Modal
   return (
-    <div className="p-8 bg-white rounded-lg shadow-md w-full max-w-md">
-      <h2 className="text-2xl font-semibold text-center text-gray-700 mb-6">Register</h2>
-      <form onSubmit={handleRegister}>
-        <div className="mb-4">
-          <label htmlFor="reg-email" className="block text-sm font-medium text-gray-600 mb-1">Email</label>
-          <input
-            type="email"
-            id="reg-email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
-            placeholder="your@email.com"
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="reg-password" className="block text-sm font-medium text-gray-600 mb-1">Password</label>
-          <input
-            type="password"
-            id="reg-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength="6" // HTML5 validation, also checked in JS
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
-            placeholder="Create a password (min. 6 chars)"
-          />
-        </div>
-        <div className="mb-6">
-          <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-600 mb-1">Confirm Password</label>
-          <input
-            type="password"
-            id="confirm-password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
-            placeholder="Retype your password"
-          />
-        </div>
-        {error && (
-            <div className="bg-red-50 border border-red-200 text-sm text-red-700 rounded-md p-3 mb-4" role="alert">
-                <span className="font-medium">Error:</span> {error}
+    // Use Card component for consistent styling with Login
+    <Card className="w-full max-w-md shadow-lg">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold">Create Account</CardTitle>
+          <CardDescription>Enter your details to register</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleRegister} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="reg-email">Email</Label>
+              <Input
+                id="reg-email"
+                type="email"
+                placeholder="your@email.com"
+                required
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
+              />
             </div>
-        )}
-        {message && (
-             <div className="bg-green-50 border border-green-200 text-sm text-green-700 rounded-md p-3 mb-4" role="alert">
-                <span className="font-medium">Success:</span> {message}
+            <div className="space-y-2">
+              <Label htmlFor="reg-password">Password</Label>
+              <Input
+                id="reg-password"
+                type="password"
+                placeholder="Create a password (min. 6 chars)"
+                required
+                autoComplete="new-password"
+                minLength={6}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
+              />
             </div>
-        )}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
-        >
-           {loading ? (
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              ) : null}
-          {loading ? 'Registering...' : 'Register'}
-        </button>
-         {/* Link back to login is handled by RegisterPage.jsx */}
-      </form>
-    </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirm-password">Confirm Password</Label>
+              <Input
+                id="confirm-password"
+                type="password"
+                placeholder="Retype your password"
+                required
+                autoComplete="new-password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                disabled={loading}
+              />
+            </div>
+
+            {/* Consistent Error/Message Styling */} 
+            {error && (
+                <div className="bg-destructive/10 border border-destructive/20 text-sm text-destructive rounded-md p-3" role="alert">
+                    {error}
+                </div>
+            )}
+            {message && (
+                 <div className="bg-primary/10 border border-primary/20 text-sm text-primary rounded-md p-3" role="alert">
+                    {message}
+                </div>
+            )}
+
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading && <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />}
+              {loading ? 'Registering...' : 'Register'}
+            </Button>
+          </form>
+        </CardContent>
+        {/* Footer removed as link back is in RegisterPage */}
+    </Card>
   );
 } 
