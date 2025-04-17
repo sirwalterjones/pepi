@@ -26,9 +26,7 @@ export default function LoginPage() {
       const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
       if (loginError) throw loginError;
       // On successful login, Supabase auth state changes.
-      // Routing logic (e.g., in middleware or a layout) will redirect.
-      // Force a router refresh to ensure layout re-evaluates auth state if needed:
-      router.refresh(); 
+      // Middleware will now handle the redirect.
     } catch (err) {
       console.error('Login error:', err);
       if (err.message.includes('Invalid login credentials')) {
