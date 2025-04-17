@@ -1,4 +1,4 @@
-import '@/src/index.css' // Ensure this path is correct relative to your project root
+import '@/index.css' // Corrected path: CSS file is directly in src
 import { Inter } from 'next/font/google' // Use Next.js font optimization
 
 // If loading a variable font, you don't need to specify the font weight

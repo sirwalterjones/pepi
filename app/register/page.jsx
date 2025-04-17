@@ -2,8 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link'; // Use Next.js Link
-import RegisterForm from '@/src/components/auth/RegisterForm'; // Update import path
-import { Button } from "@/src/components/ui/button"; // For link styling
+import RegisterForm from '@/components/auth/RegisterForm'; // Corrected alias path
+import { Button } from "@/components/ui/button"; // Corrected alias path
 
 export default function RegisterPage() {
   return (

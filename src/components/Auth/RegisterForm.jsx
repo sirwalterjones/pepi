@@ -1,11 +1,11 @@
 'use client' // Required for hooks and handlers
 
 import React, { useState } from 'react';
-import { supabase } from '@/src/lib/supabaseClient'; // Ensure path alias is correct
-import { Button } from "@/src/components/ui/button";
-import { Input } from "@/src/components/ui/input";
-import { Label } from "@/src/components/ui/label";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/src/components/ui/card";
+import { supabase } from '@/lib/supabaseClient'; // Corrected alias path
+import { Button } from "@/components/ui/button"; // Corrected alias path
+import { Input } from "@/components/ui/input"; // Corrected alias path
+import { Label } from "@/components/ui/label"; // Corrected alias path
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"; // Corrected alias path
 import { ReloadIcon } from "@radix-ui/react-icons";
 
 // Renamed from RegisterComponent
