@@ -1,29 +1,27 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Access environment variables using import.meta.env for Vite
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Use process.env for Next.js environment variables
+// Prefix with NEXT_PUBLIC_ for client-side access
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+let supabaseInstance;
 
 if (!supabaseUrl) {
-  console.warn('Supabase URL not found. Please provide it in your environment variables (e.g., .env or Vercel dashboard) as VITE_SUPABASE_URL.');
-  // throw new Error("Supabase URL not found."); // Optional: throw error to prevent app load
+  console.warn('Supabase URL not found. Provide it as NEXT_PUBLIC_SUPABASE_URL.');
+} else if (!supabaseAnonKey) {
+  console.warn('Supabase Anon Key not found. Provide it as NEXT_PUBLIC_SUPABASE_ANON_KEY.');
+} else {
+  supabaseInstance = createClient(supabaseUrl, supabaseAnonKey);
 }
 
-if (!supabaseAnonKey) {
-  console.warn('Supabase Anon Key not found. Please provide it in your environment variables (e.g., .env or Vercel dashboard) as VITE_SUPABASE_ANON_KEY.');
-   // throw new Error("Supabase Anon Key not found."); // Optional: throw error
-}
+// Export the instance, handling potential undefined state if env vars are missing
+export const supabase = supabaseInstance;
 
-// Handle cases where env vars might be missing during build/runtime if not throwing errors
-const effectiveUrl = supabaseUrl || 'temp-url-placeholder';
-const effectiveKey = supabaseAnonKey || 'temp-key-placeholder';
-
-export const supabase = createClient(effectiveUrl, effectiveKey)
-
-// Optional: Add a check function if you didn't throw errors above
+// Optional check function
 export const checkSupabaseConfig = () => {
-  if (!supabaseUrl || !supabaseAnonKey) {
-    console.error("Supabase configuration is missing. Please check environment variables.");
+  if (!supabaseUrl || !supabaseAnonKey || !supabaseInstance) {
+    console.error("Supabase configuration is missing or invalid. Check NEXT_PUBLIC_ environment variables.");
     return false;
   }
   return true;
