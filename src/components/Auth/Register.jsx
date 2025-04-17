@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-// import { supabase } from '../../lib/supabaseClient'; // TODO: Uncomment and use for actual registration logic
+import { supabase } from '../../lib/supabaseClient'; // Import supabase client
 
 export default function RegisterComponent() { // Renamed to avoid conflict if used as a page
   const [email, setEmail] = useState('');
@@ -14,26 +14,56 @@ export default function RegisterComponent() { // Renamed to avoid conflict if us
     setError(null);
     setMessage(null);
 
+    if (password.length < 6) {
+        setError('Password must be at least 6 characters long.');
+        return;
+    }
     if (password !== confirmPassword) {
       setError('Passwords do not match.');
       return;
     }
 
     setLoading(true);
-    console.log('Attempting registration with:', { email }); // Don't log password
-    // TODO: Implement actual Supabase registration logic here
-    // try {
-    //   const { user, error } = await supabase.auth.signUp({ email, password });
-    //   if (error) throw error;
-    //   setMessage('Registration successful! Please check your email for verification.');
-    //   // Handle successful registration (e.g., clear form, show message)
-    // } catch (error) {
-    //   setError(error.message);
-    // } finally {
-    //   setLoading(false);
-    // }
-    setLoading(false); // Placeholder
-    setError('Registration functionality not implemented yet.'); // Placeholder
+    console.log('Attempting registration with:', { email });
+
+    try {
+      // Check Supabase config first (optional)
+      // if (!checkSupabaseConfig()) { 
+      //   throw new Error("Supabase not configured.");
+      // }
+
+      const { data, error: signUpError } = await supabase.auth.signUp({ 
+        email,
+        password,
+        // options: { // Optional: Add user metadata like role upon signup
+        //   data: {
+        //     role: 'agent' // Default role, could be adjusted
+        //   }
+        // }
+      });
+
+      if (signUpError) throw signUpError;
+
+      console.log('Registration successful:', data);
+      setMessage('Registration successful! Please check your email for a confirmation link.');
+      // Clear form on success
+      setEmail('');
+      setPassword('');
+      setConfirmPassword('');
+
+    } catch (err) {
+      console.error('Registration error:', err);
+       // Provide user-friendly error messages
+      if (err.message.includes('User already registered')) {
+         setError('This email address is already registered.');
+      } else if (err.message.includes('Password should be at least 6 characters')) {
+          setError('Password must be at least 6 characters long.');
+      } else {
+          setError(err.message || 'An unexpected error occurred during registration.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   // This is a component, likely used within a Register Page or Modal
@@ -61,7 +91,7 @@ export default function RegisterComponent() { // Renamed to avoid conflict if us
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            minLength="6" // Example: Enforce minimum password length
+            minLength="6" // HTML5 validation, also checked in JS
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
             placeholder="Create a password (min. 6 chars)"
           />
@@ -78,19 +108,30 @@ export default function RegisterComponent() { // Renamed to avoid conflict if us
             placeholder="Retype your password"
           />
         </div>
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-        {message && <p className="text-green-500 text-sm mb-4">{message}</p>}
+        {error && (
+            <div className="bg-red-50 border border-red-200 text-sm text-red-700 rounded-md p-3 mb-4" role="alert">
+                <span className="font-medium">Error:</span> {error}
+            </div>
+        )}
+        {message && (
+             <div className="bg-green-50 border border-green-200 text-sm text-green-700 rounded-md p-3 mb-4" role="alert">
+                <span className="font-medium">Success:</span> {message}
+            </div>
+        )}
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:shadow-outline disabled:opacity-50"
+          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
         >
+           {loading ? (
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              ) : null}
           {loading ? 'Registering...' : 'Register'}
         </button>
-         {/* TODO: Add link back to Login page */}
-         {/* <p className="text-center text-sm text-gray-600 mt-4">
-            Already have an account? <a href="#" className="text-blue-500 hover:underline">Login</a>
-          </p> */}
+         {/* Link back to login is handled by RegisterPage.jsx */}
       </form>
     </div>
   );

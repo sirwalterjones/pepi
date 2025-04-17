@@ -1,54 +1,76 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { supabase } from './lib/supabaseClient';
 
 import LoginPage from './pages/Auth/Login.jsx'
 import RegisterPage from './pages/Auth/RegisterPage.jsx'
-// import AdminDashboardPage from './pages/Dashboard/Admin.jsx' // TODO: Add dashboard route later
+import AdminDashboardPage from './pages/Dashboard/Admin.jsx'
 
 import './index.css' // Import Tailwind CSS
 
-// Placeholder for Auth state check - replace with actual Supabase logic
-const isAuthenticated = () => {
-  // TODO: Check Supabase auth state (e.g., supabase.auth.session())
-  return false; // Default to not logged in
-};
+// Main App Component to manage auth state
+function App() {
+  const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-// Placeholder ProtectedRoute component
-const ProtectedRoute = ({ children }) => {
-  if (!isAuthenticated()) {
-    // Redirect them to the /login page, but save the current location they were
-    // trying to go to when they were redirected.
-    return <Navigate to="/login" replace />;
+  useEffect(() => {
+    // Check initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoading(false);
+    });
+
+    // Listen for auth state changes
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setLoading(false); // Update loading state on change too
+    });
+
+    // Cleanup listener on component unmount
+    return () => {
+      authListener?.unsubscribe();
+    };
+  }, []);
+
+  // Show loading indicator while checking session
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        {/* Simple spinner or loading message */}
+        <p className="text-gray-500">Loading...</p>
+        {/* Or use an SVG spinner like in LoginPage */}
+      </div>
+    );
   }
-  return children;
-};
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Auth Routes - redirect if logged in */}
+        <Route path="/login" element={!session ? <LoginPage /> : <Navigate to="/dashboard" replace />} />
+        <Route path="/register" element={!session ? <RegisterPage /> : <Navigate to="/dashboard" replace />} />
+
+        {/* Protected Dashboard Route */}
+        <Route
+          path="/dashboard"
+          element={session ? <AdminDashboardPage /> : <Navigate to="/login" replace />}
+        />
+        {/* TODO: Add specific Agent dashboard route later based on role */}
+
+        {/* Default route: Redirect based on auth state */}
+        <Route
+          path="*"
+          element={session ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />}
+        />
+      </Routes>
+    </BrowserRouter>
+  );
+}
 
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <Routes>
-        {/* Auth Routes */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-
-        {/* Protected Dashboard Route */}
-        {/* <Route 
-          path="/dashboard" 
-          element={
-            <ProtectedRoute>
-              <AdminDashboardPage />
-            </ProtectedRoute>
-          }
-        /> */}
-
-        {/* Default route: Redirect to login if not authenticated, dashboard if authenticated */}
-        <Route 
-          path="*" 
-          element={isAuthenticated() ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />}
-        />
-      </Routes>
-    </BrowserRouter>
+    <App />
   </React.StrictMode>,
 ) 

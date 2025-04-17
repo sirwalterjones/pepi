@@ -1,30 +1,48 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom'; // Import Link
-// import { supabase } from '../../lib/supabaseClient'; // TODO: Uncomment and use for actual login logic
+import { Link, useNavigate } from 'react-router-dom'; // Import Link and useNavigate
+import { supabase } from '../../lib/supabaseClient'; // Import supabase client
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const navigate = useNavigate(); // Hook for navigation
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    console.log('Attempting login with:', { email }); // Avoid logging password
-    // TODO: Implement actual Supabase login logic here
-    // try {
-    //   const { error } = await supabase.auth.signInWithPassword({ email, password });
-    //   if (error) throw error;
-    //   // Handle successful login (e.g., redirect or update app state)
-    // } catch (error) {
-    //   setError(error.message);
-    // } finally {
-    //   setLoading(false);
-    // }
-    setLoading(false); // Placeholder
-    setError('Login functionality not implemented yet.'); // Placeholder
+    console.log('Attempting login with:', { email });
+
+    try {
+      // Check Supabase config first (optional but good practice)
+      // if (!checkSupabaseConfig()) { // Assuming checkSupabaseConfig is exported from supabaseClient
+      //   throw new Error("Supabase not configured. Check environment variables.");
+      // }
+
+      const { data, error: loginError } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (loginError) throw loginError;
+
+      console.log('Login successful:', data);
+      // TODO: Implement proper state management to update auth status globally
+      alert('Login Successful!'); // Temporary feedback
+      // navigate('/dashboard'); // Navigate to dashboard upon successful login (when route exists)
+
+    } catch (err) {
+      console.error('Login error:', err);
+      // Provide user-friendly error messages
+      if (err.message.includes('Invalid login credentials')) {
+        setError('Invalid email or password.');
+      } else if (err.message.includes('Email not confirmed')) {
+         setError('Please confirm your email address first.');
+      } else {
+        setError(err.message || 'An unexpected error occurred during login.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
